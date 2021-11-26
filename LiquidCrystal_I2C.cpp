@@ -1,29 +1,7 @@
 // Based on the work by DFRobot
 
-#include "LiquidCrystal_I2C.h"
-#include <inttypes.h>
-#if defined(ARDUINO) && ARDUINO >= 100
-
 #include "Arduino.h"
-
-#define printIIC(args)	Wire.write(args)
-inline size_t LiquidCrystal_I2C::write(uint8_t value) {
-	send(value, Rs);
-	return 1;
-}
-
-#else
-#include "WProgram.h"
-
-#define printIIC(args)	Wire.send(args)
-inline void LiquidCrystal_I2C::write(uint8_t value) {
-	send(value, Rs);
-}
-
-#endif
-#include "Wire.h"
-
-
+#include "LiquidCrystal_I2C.h"
 
 // When the display powers up, it is configured as follows:
 //
@@ -68,7 +46,7 @@ void LiquidCrystal_I2C::init_priv()
 	begin(_cols, _rows);  
 }
 
-void LiquidCrystal_I2C::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
+void LiquidCrystal_I2C::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {	// RK wird dotsize benötigt??
 	if (lines > 1) {
 		_displayfunction |= LCD_2LINE;
 	}
@@ -82,62 +60,66 @@ void LiquidCrystal_I2C::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 	// SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
 	// according to datasheet, we need at least 40ms after power rises above 2.7V
 	// before sending commands. Arduino can turn on way befer 4.5V so we'll wait 50
-	delay(50); 
-  
-	// Now we pull both RS and R/W low to begin commands
-	expanderWrite(_backlightval);	// reset expanderand turn backlight off (Bit 8 =1)
-	delay(1000);
 
-  	//put the LCD into 4 bit mode
+	delay(50);
+
+	// Now we pull both RS and R/W low to begin commands
+	command4bit(0x00 | _backlightval);		// reset expander and turn backlight off (Bit 8 =1)
+
+	//put the LCD into 4 bit mode
 	// this is according to the hitachi HD44780 datasheet
 	// figure 24, pg 46
-	
-	  // we start in 8bit mode, try to set 4 bit mode
-   write4bits(0x03 << 4);
-   delayMicroseconds(4500); // wait min 4.1ms
-   
-   // second try
-   write4bits(0x03 << 4);
-   delayMicroseconds(4500); // wait min 4.1ms
-   
-   // third go!
-   write4bits(0x03 << 4); 
-   delayMicroseconds(150);
-   
-   // finally, set to 4-bit interface
-   write4bits(0x02 << 4); 
 
+		// we start in 8bit mode, try to set 4 bit mode
+	command4bit((LCD_FUNCTIONSET | LCD_8BITMODE));
+	delayMicroseconds(4500); // wait min 4.1ms
+      
+	// second try
+	command4bit((LCD_FUNCTIONSET | LCD_8BITMODE));
+	delayMicroseconds(4500); // wait min 4.1ms
+
+	// third go!
+	command4bit((LCD_FUNCTIONSET | LCD_8BITMODE));
+	delayMicroseconds(150);
+
+	// finally, set to 4-bit interface
+	command4bit((LCD_FUNCTIONSET | LCD_4BITMODE));
 
 	// set # lines, font size, etc.
-	command(LCD_FUNCTIONSET | _displayfunction);  
-	
+	command(LCD_FUNCTIONSET | _displayfunction);
+
 	// turn the display on with no cursor or blinking default
 	_displaycontrol = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;
 	display();
-	
+
 	// clear it off
 	clear();
-	
+
 	// Initialize to default text direction (for roman languages)
 	_displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
-	
+
 	// set the entry mode
 	command(LCD_ENTRYMODESET | _displaymode);
-	
+
 	home();
-  
 }
 
 /********** high level commands, for the user! */
+
+inline size_t LiquidCrystal_I2C::write(uint8_t value) {
+	send(value, Rs);
+	return 1;
+}
+
 void LiquidCrystal_I2C::clear(){
 	command(LCD_CLEARDISPLAY);// clear display, set cursor position to zero
-	delayMicroseconds(2000);  // this command takes a long time!
-  if (_oled) setCursor(0,0);
+	delayMicroseconds(2000);  // this command takes a long time!	// RK hat HD44780 nicht
+	if (_oled) setCursor(0,0);
 }
 
 void LiquidCrystal_I2C::home(){
 	command(LCD_RETURNHOME);  // set cursor position to zero
-	delayMicroseconds(2000);  // this command takes a long time!
+	delayMicroseconds(2000);  // this command takes a long time!	// RK hat HD44780 nicht
 }
 
 void LiquidCrystal_I2C::setCursor(uint8_t col, uint8_t row){
@@ -198,6 +180,18 @@ void LiquidCrystal_I2C::rightToLeft(void) {
 	command(LCD_ENTRYMODESET | _displaymode);
 }
 
+// This moves the cursor one space to the right
+void LiquidCrystal_I2C::moveCursorRight(void)
+{
+	command(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVERIGHT);
+}
+
+// This moves the cursor one space to the left
+void LiquidCrystal_I2C::moveCursorLeft(void)
+{
+	command(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVELEFT);
+}
+
 // This will 'right justify' text from the cursor
 void LiquidCrystal_I2C::autoscroll(void) {
 	_displaymode |= LCD_ENTRYSHIFTINCREMENT;
@@ -232,52 +226,47 @@ void LiquidCrystal_I2C::createChar(uint8_t location, const char *charmap) {
 // Turn the (optional) backlight off/on
 void LiquidCrystal_I2C::noBacklight(void) {
 	_backlightval=LCD_NOBACKLIGHT;
-	expanderWrite(0);
+	Wire.beginTransmission(_Addr);
+	Wire.write(0x00 | _backlightval);
+	Wire.endTransmission(); 
 }
 
 void LiquidCrystal_I2C::backlight(void) {
 	_backlightval=LCD_BACKLIGHT;
-	expanderWrite(0);
+	Wire.beginTransmission(_Addr);
+	Wire.write(0x00 | _backlightval);
+	Wire.endTransmission(); 
 }
-
-
-
-/*********** mid level commands, for sending data/cmds */
-
-inline void LiquidCrystal_I2C::command(uint8_t value) {
-	send(value, 0);
-}
-
 
 /************ low level data pushing commands **********/
 
+inline void LiquidCrystal_I2C::command(uint8_t value) {
+	send(value, 0x00);
+}
+
+// 4 bit commands are only used during initialization
+// and are required to reliably get the LCD and host in nibble sync
+// only the upper nibble are send
+inline void LiquidCrystal_I2C::command4bit(uint8_t value) {
+	Wire.beginTransmission(_Addr);
+	pulseEnable((value&0xF0)|_backlightval);
+	Wire.endTransmission();
+}
+
 // write either command or data
 void LiquidCrystal_I2C::send(uint8_t value, uint8_t mode) {
-	uint8_t highnib=value&0xf0;
-	uint8_t lownib=(value<<4)&0xf0;
-       write4bits((highnib)|mode);
-	write4bits((lownib)|mode); 
-}
-
-void LiquidCrystal_I2C::write4bits(uint8_t value) {
-	expanderWrite(value);
-	pulseEnable(value);
-}
-
-void LiquidCrystal_I2C::expanderWrite(uint8_t _data){                                        
 	Wire.beginTransmission(_Addr);
-	printIIC((int)(_data) | _backlightval);
-	Wire.endTransmission();   
+	pulseEnable((value&0xF0)|mode|_backlightval);
+	pulseEnable(((value<<4)&0xF0)|mode|_backlightval);
+	Wire.endTransmission();
 }
 
 void LiquidCrystal_I2C::pulseEnable(uint8_t _data){
-	expanderWrite(_data | En);	// En high
-	delayMicroseconds(1);		// enable pulse must be >450ns
-	
-	expanderWrite(_data & ~En);	// En low
-	delayMicroseconds(50);		// commands need > 37us to settle
+	Wire.write(_data | En);			// En high
+	delayMicroseconds(1);			// enable pulse must be >450ns
+	Wire.write(_data & ~En);		// En low
+	delayMicroseconds(50);			// commands need > 37us to settle
 } 
-
 
 // Alias functions
 

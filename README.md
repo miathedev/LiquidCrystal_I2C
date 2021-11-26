@@ -1,4 +1,7 @@
 # LiquidCrystal_I2C
+This is a fork of the below mentioned I2C LCD library.
+Some major changes to reduce the time for writing to a LCD have been done.
+Furthermore the init sequence has been changed for improved reliability on start up.
 
 LiquidCrystal Arduino library for I2C LCD displays
 
