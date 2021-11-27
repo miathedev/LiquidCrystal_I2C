@@ -64,26 +64,26 @@ void LiquidCrystal_I2C::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {	//
 	delay(50);
 
 	// Now we pull both RS and R/W low to begin commands
-	command4bit(0x00 | _backlightval);		// reset expander and turn backlight off (Bit 8 =1)
+	commandInit(0x00 | _backlightval);		// reset expander and turn backlight off (Bit 8 =1)
 
 	//put the LCD into 4 bit mode
 	// this is according to the hitachi HD44780 datasheet
 	// figure 24, pg 46
 
 		// we start in 8bit mode, try to set 4 bit mode
-	command4bit((LCD_FUNCTIONSET | LCD_8BITMODE));
+	commandInit((LCD_FUNCTIONSET | LCD_8BITMODE));
 	delayMicroseconds(4500); // wait min 4.1ms
       
 	// second try
-	command4bit((LCD_FUNCTIONSET | LCD_8BITMODE));
+	commandInit((LCD_FUNCTIONSET | LCD_8BITMODE));
 	delayMicroseconds(4500); // wait min 4.1ms
 
 	// third go!
-	command4bit((LCD_FUNCTIONSET | LCD_8BITMODE));
+	commandInit((LCD_FUNCTIONSET | LCD_8BITMODE));
 	delayMicroseconds(150);
 
 	// finally, set to 4-bit interface
-	command4bit((LCD_FUNCTIONSET | LCD_4BITMODE));
+	commandInit((LCD_FUNCTIONSET | LCD_4BITMODE));
 
 	// set # lines, font size, etc.
 	command(LCD_FUNCTIONSET | _displayfunction);
@@ -247,7 +247,7 @@ inline void LiquidCrystal_I2C::command(uint8_t value) {
 // 4 bit commands are only used during initialization
 // and are required to reliably get the LCD and host in nibble sync
 // only the upper nibble are send
-inline void LiquidCrystal_I2C::command4bit(uint8_t value) {
+inline void LiquidCrystal_I2C::commandInit(uint8_t value) {
 	Wire.beginTransmission(_Addr);
 	pulseEnable((value&0xF0)|_backlightval);
 	Wire.endTransmission();

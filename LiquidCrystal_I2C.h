@@ -109,7 +109,7 @@ void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixe
 private:
   void init_priv();
   void command(uint8_t);
-  void command4bit(uint8_t value);
+  void commandInit(uint8_t value);
   void send(uint8_t, uint8_t);
 /*
   void send_plain(uint8_t value, uint8_t mode);
