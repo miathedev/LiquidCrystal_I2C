@@ -53,8 +53,7 @@
 
 class LiquidCrystal_I2C : public Print {
 public:
-  LiquidCrystal_I2C(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows);
-  void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS );
+  LiquidCrystal_I2C();
   void clear();
   void home();
   void noDisplay();
@@ -82,8 +81,10 @@ public:
   // Example: 	const char bell[8] PROGMEM = {B00100,B01110,B01110,B01110,B11111,B00000,B00100,B00000};
   void setCursor(uint8_t, uint8_t); 
   virtual size_t write(uint8_t);
-  void init();
-  void oled_init();
+  virtual size_t writeString(char*);
+  virtual size_t writeString(char*, uint8_t);
+  void init(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows, uint8_t charsize = LCD_5x8DOTS);
+  void oled_init(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows, uint8_t charsize = LCD_5x8DOTS);
 
 ////compatibility API function aliases
   void blink_on();						              // alias for blink()
@@ -107,13 +108,11 @@ void draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixe
 	 
 
 private:
-  void init_priv();
+  void begin();
+  void _init();
   void command(uint8_t);
   void commandInit(uint8_t value);
   void send(uint8_t, uint8_t);
-/*
-  void send_plain(uint8_t value, uint8_t mode);
-*/
   void expanderWrite(uint8_t);
   void pulseEnable(uint8_t);
 
@@ -125,6 +124,7 @@ private:
   bool _oled = false;
   uint8_t _cols;
   uint8_t _rows;
+  uint8_t _dotsize;
   uint8_t _backlightval;
 };
 
