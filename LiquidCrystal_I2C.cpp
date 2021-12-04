@@ -119,12 +119,12 @@ inline size_t LiquidCrystal_I2C::write(uint8_t value) {
 }
 
 /* ******** writes a NULL terminated string to the Display ****************** */
-inline size_t LiquidCrystal_I2C::writeString(char *value) {
+inline size_t LiquidCrystal_I2C::writeString(const char *value) {
 	return writeString(value, strlen(value));
 }
 
 /* ******** writes a string with defined length to the Display ************** */
-inline size_t LiquidCrystal_I2C::writeString(char *value, uint8_t length) {
+inline size_t LiquidCrystal_I2C::writeString(const char *value, uint8_t length) {
 	uint8_t countChar = 0;
 	uint8_t countI2C = 0;
 	Wire.beginTransmission(_Addr);

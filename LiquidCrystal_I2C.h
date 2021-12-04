@@ -3,6 +3,9 @@
 #define LiquidCrystal_I2C_h
 
 #include <Wire.h>
+#if defined(ARDUINO_ARCH_RP2040)
+  #define BUFFER_LENGTH WIRE_BUFFER_SIZE
+#endif
 
 // commands
 #define LCD_CLEARDISPLAY    0x01
@@ -81,8 +84,8 @@ public:
   // Example: 	const char bell[8] PROGMEM = {B00100,B01110,B01110,B01110,B11111,B00000,B00100,B00000};
   void setCursor(uint8_t, uint8_t); 
   virtual size_t write(uint8_t);
-  virtual size_t writeString(char*);
-  virtual size_t writeString(char*, uint8_t);
+  virtual size_t writeString(const char*);
+  virtual size_t writeString(const char*, uint8_t);
   void init(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows, uint8_t charsize = LCD_5x8DOTS);
   void oled_init(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows, uint8_t charsize = LCD_5x8DOTS);
 
