@@ -155,7 +155,7 @@ void LiquidCrystal_I2C::home(){
 }
 
 void LiquidCrystal_I2C::setCursor(uint8_t col, uint8_t row){
-	int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
+	int row_offsets[] = { 0x00, 0x40, _cols, 0x40 + _cols };
 	if ( row > _rows ) {
 		row = _rows-1;    												// we count rows starting w/0
 	}
