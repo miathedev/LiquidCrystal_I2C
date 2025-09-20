@@ -1,0 +1,37 @@
+{
+  // Enable format on save for all files except .cpp files
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+
+  // C/C++ formatting settings
+  "C_Cpp.formatting": "clangFormat",
+  "C_Cpp.clang_format_style": "file",
+
+  // File-specific settings to exclude .cpp files from auto-formatting
+  "[cpp]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false
+  },
+
+  // Ensure header files (.h) are formatted
+  "[c]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+    "editor.defaultFormatter": "ms-vscode.cpptools"
+  },
+
+  // Default formatter for C/C++ files
+  "editor.defaultFormatter": "ms-vscode.cpptools",
+
+  // Additional formatting settings for consistency
+  "editor.insertSpaces": false,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.trimAutoWhitespace": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true
+}

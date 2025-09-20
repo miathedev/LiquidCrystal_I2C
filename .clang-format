@@ -1,0 +1,23 @@
+---
+BasedOnStyle: LLVM
+IndentWidth: 2
+TabWidth: 2
+UseTab: ForIndentation
+ColumnLimit: 120
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+SpaceBeforeParens: ControlStatements
+BreakBeforeBraces: Linux
+IndentCaseLabels: true
+NamespaceIndentation: All
+SpacesBeforeTrailingComments: 1
+ReflowComments: false
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+PointerAlignment: Right
+SortIncludes: true
+Standard: Cpp11
+...
